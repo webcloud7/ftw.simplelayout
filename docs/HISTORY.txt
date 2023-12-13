@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.27.7 (unreleased)
+1.27.7 (2023-12-13)
 -------------------
 
 - Add working copy support for non folderish types and non sl types. [mathias.leimgruber]
