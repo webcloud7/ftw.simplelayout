@@ -1,7 +1,7 @@
 Changelog
 =========
 
-2.8.8 (unreleased)
+2.8.8 (2024-02-21)
 ------------------
 
 - Set modification date within apply working copy - if there were changes. [mathias.leimgruber]
