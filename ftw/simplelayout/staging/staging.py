@@ -389,10 +389,12 @@ class Staging(object):
             source))
 
     def _copy_dx_field_values(self, source, target):
+        changed = False
         for name, field, schemata in self._iter_fields(source.portal_type):
             if name == 'id':
                 # never re-set the id.
                 continue
+
             source_storage = schemata(source)
             target_storage = schemata(target)
             value = getattr(source_storage, name)
@@ -403,7 +405,13 @@ class Staging(object):
             elif isinstance(value, str):
                 value = value.decode('utf-8')
 
+            if getattr(target_storage, name) != value:
+                changed = True
+
             setattr(target_storage, field.getName(), value)
+
+        if changed:
+            target.setModificationDate()
 
     def _copy_at_field_values(self, source, target):
         for source_field in source.Schema().values():
