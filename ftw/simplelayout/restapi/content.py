@@ -1,4 +1,4 @@
-from ftw.simplelayout.interfaces import IBlockConfiguration
+from ftw.simplelayout.interfaces import IBlockProperties
 from ftw.simplelayout.interfaces import IPageConfiguration
 from ftw.simplelayout.interfaces import ISimplelayout
 from ftw.simplelayout.interfaces import ISimplelayoutBlock
@@ -18,6 +18,7 @@ from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.interfaces import IPloneSiteRoot
 from zope.component import adapter
 from zope.component import getMultiAdapter
+from zope.component import queryMultiAdapter
 from zope.interface import implementer
 from zope.interface import Interface
 import json
@@ -139,8 +140,10 @@ class SimplelayoutBlockSerializeToJson(SerializeToJson):
     def __call__(self, version=None, include_items=True):
         result = super(SimplelayoutBlockSerializeToJson, self).__call__(version=version, include_items=include_items)
 
+        properties = queryMultiAdapter((self.context, self.request), IBlockProperties)
+
         result['block-configuration'] = json.loads(json.dumps(
-            IBlockConfiguration(self.context).load(),
+            properties.get_storage(),
             cls=PersistenceDecoder)
         )
 
