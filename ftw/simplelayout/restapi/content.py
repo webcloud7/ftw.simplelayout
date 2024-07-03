@@ -1,5 +1,6 @@
 from Products.CMFPlone.interfaces import IPloneSiteRoot
 from ftw.simplelayout.interfaces import IBlockProperties
+from ftw.simplelayout.interfaces import IBlockConfiguration
 from ftw.simplelayout.interfaces import IPageConfiguration
 from ftw.simplelayout.interfaces import ISimplelayout
 from ftw.simplelayout.interfaces import ISimplelayoutBlock
@@ -76,12 +77,19 @@ class SimplelayoutBlockSerializeToJson(SerializeToJson):
     def __call__(self, version=None, include_items=True):
         result = super(SimplelayoutBlockSerializeToJson, self).__call__(version=version, include_items=include_items)
 
+        result['block-configuration'] = {}
         properties = queryMultiAdapter((self.context, self.request), IBlockProperties)
 
-        result['block-configuration'] = json.loads(json.dumps(
+        result['block-configuration'].update(json.loads(json.dumps(
             properties.get_storage(),
             cls=PersistenceDecoder)
-        )
+        ))
+
+        configuration = IBlockConfiguration(self.context)
+        result['block-configuration'].update(json.loads(json.dumps(
+            configuration.load(),
+            cls=PersistenceDecoder)
+        ))
 
         if IDexterityContainer.providedBy(self.context):
             result['items'] = SerializeFolderToJson(self.context, self.request)()['items']
