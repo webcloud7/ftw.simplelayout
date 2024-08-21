@@ -1,6 +1,5 @@
-from Products.CMFPlone.interfaces import IPloneSiteRoot
-from ftw.simplelayout.interfaces import IBlockProperties
 from ftw.simplelayout.interfaces import IBlockConfiguration
+from ftw.simplelayout.interfaces import IBlockProperties
 from ftw.simplelayout.interfaces import IPageConfiguration
 from ftw.simplelayout.interfaces import ISimplelayout
 from ftw.simplelayout.interfaces import ISimplelayoutBlock
@@ -8,16 +7,21 @@ from ftw.simplelayout.interfaces import ISimplelayoutLayer
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
 from plone import api
+from plone.app.textfield.interfaces import IRichText
 from plone.dexterity.interfaces import IDexterityContainer
+from plone.dexterity.interfaces import IDexterityContent
 from plone.restapi.interfaces import ISerializeToJson
+from plone.restapi.serializer.converters import json_compatible
 from plone.restapi.serializer.dxcontent import SerializeFolderToJson
 from plone.restapi.serializer.dxcontent import SerializeToJson
+from plone.restapi.serializer.dxfields import DefaultFieldSerializer
 from plone.restapi.serializer.site import SerializeSiteRootToJson
+from Products.CMFPlone.interfaces import IPloneSiteRoot
 from zope.component import adapter
 from zope.component import getMultiAdapter
 from zope.component import queryMultiAdapter
-from zope.interface import Interface
 from zope.interface import implementer
+from zope.interface import Interface
 import json
 
 
@@ -94,4 +98,14 @@ class SimplelayoutBlockSerializeToJson(SerializeToJson):
         if IDexterityContainer.providedBy(self.context):
             result['items'] = SerializeFolderToJson(self.context, self.request)()['items']
 
+        return result
+
+
+@adapter(IRichText, IDexterityContent, ISimplelayoutLayer)
+class CustomRichttextFieldSerializer(DefaultFieldSerializer):
+    def __call__(self):
+        value = self.get_value()
+        result = json_compatible(value, self.context)
+        if value:
+            result[u'raw'] = json_compatible(value.raw)
         return result
