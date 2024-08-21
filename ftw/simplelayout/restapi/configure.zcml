@@ -9,6 +9,7 @@
   <adapter factory=".content.SimplelayoutSerializer" />
   <adapter factory=".content.SimplelayoutSerializeSiteRootToJson" />
   <adapter factory=".content.SimplelayoutBlockSerializeToJson" />
+  <adapter factory=".content.CustomRichttextFieldSerializer" />
 
   <plone:service
       method="POST"
