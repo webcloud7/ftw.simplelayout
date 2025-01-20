@@ -80,7 +80,6 @@ class SimplelayoutSerializeSiteRootToJson(SerializeSiteRootToJson):
 class SimplelayoutBlockSerializeToJson(SerializeToJson):
     def __call__(self, version=None, include_items=True):
         result = super(SimplelayoutBlockSerializeToJson, self).__call__(version=version, include_items=include_items)
-
         result['block-configuration'] = {}
         properties = queryMultiAdapter((self.context, self.request), IBlockProperties)
 
@@ -96,7 +95,12 @@ class SimplelayoutBlockSerializeToJson(SerializeToJson):
         ))
 
         if IDexterityContainer.providedBy(self.context):
-            result['items'] = SerializeFolderToJson(self.context, self.request)()['items']
+            content = SerializeFolderToJson(self.context, self.request)()
+            result['items'] = content['items']
+            if 'batching' in content:
+                result['batching'] = content['batching']
+            if 'items_total' in content:
+                result['items_total'] = content['items_total']
 
         return result
 
